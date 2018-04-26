@@ -62,23 +62,63 @@ Theta2_grad = zeros(size(Theta2));
 %               and Theta2_grad from Part 2.
 %
 
+%Feed Forward Propagation
+X = [ones(m, 1) X];
+a1 = X;
+a2 = sigmoid(Theta1 * X');
+a2 = [ones(m, 1) a2'];
+a3 = sigmoid(Theta2 * a2');
+hTheta = a3; %10*5000
 
+%Recoding y vector
+yTemp = zeros(num_labels, m);
+for i = 1:m,
+    yTemp(y(i), i) = 1;
+end
+y = yTemp;
 
+%Cost function without regularization
+J = (1/m) * (sum (sum((-y .* log(hTheta)) - ((1-y) .* log(1 - hTheta)))));
 
+%Not regularizing bias column in theta
+Theta1Reg = Theta1(:,2:size(Theta1,2));
+Theta2Reg = Theta2(:,2:size(Theta2,2));
 
+Jreg = (lambda/(2*m)) * ((sum(sum(Theta1Reg .^ 2))) + (sum(sum(Theta2Reg .^ 2))));
+J = J + Jreg;
 
+%Gradient calculation begins here
+for i = 1:m,
+    a1 = X(i,:);
+    z2 = Theta1 * a1';
+    z2Bias = [1 ; z2];
 
+    a2 = sigmoid(z2);
+    a2 = [1 ; a2];
 
+    z3 = Theta2 * a2;
+    a3 = sigmoid(z3);
 
+    delta3 = a3 - y(:,i);
+    delta2 = Theta2' * delta3 .* sigmoidGradient(z2Bias);
 
+    %skipping delta2(0)
+    delta2 = delta2(2:end);
 
+    Theta2_grad = Theta2_grad + delta3 * a2';
+    Theta1_grad = Theta1_grad + delta2 * a1;
+end;
 
+% Theta1_grad = Theta1_grad ./ m;
+% Theta2_grad = Theta2_grad ./ m;
 
+%Regularised Gradient Using BackPropagation
 
+Theta1_grad(:,1) = Theta1_grad(:,1) ./ m;
+Theta2_grad(:,1) = Theta2_grad(:,1) ./ m;
 
-
-
-
+Theta1_grad(:,2:end) = (Theta1_grad(:,2:end) ./ m) + ((lambda/m) * Theta1(:,2:end));
+Theta2_grad(:,2:end) = (Theta2_grad(:,2:end) ./ m) + ((lambda/m) * Theta2(:,2:end));
 
 % -------------------------------------------------------------
 
