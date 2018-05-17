@@ -87,7 +87,7 @@ Theta2Reg = Theta2(:,2:size(Theta2,2));
 Jreg = (lambda/(2*m)) * ((sum(sum(Theta1Reg .^ 2))) + (sum(sum(Theta2Reg .^ 2))));
 J = J + Jreg;
 
-%Gradient calculation begins here
+%Gradient calculation begins here for Unregularised backpropagation
 for i = 1:m,
     a1 = X(i,:);
     z2 = Theta1 * a1';
